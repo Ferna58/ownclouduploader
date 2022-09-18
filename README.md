@@ -19,6 +19,7 @@ git push heroku master
 /rm : remueve un archivo del root (index,range)
 /zip : comprime un archivo del root (index,splitsize)
 /upload : sube un o varios archivo a la nube (index,range)
+/listenup : sube uno o varios archivos espera a q se borre el anterior de la nube (index,range)
 ```
 
 # Deploy Directo (Heroku)
