@@ -86,6 +86,7 @@ class OwnClient(object):
         self.baseheaders = {'user-agent':'Mozilla/5.0 (Linux; Android 10; dandelion) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.101 Mobile Safari/537.36'}
 
     def login(self):
+        print("PROXY: "+str(self.proxy))
         loginurl = self.path + 'index.php/login'
         resp = self.session.get(loginurl,proxies=self.proxy,headers=self.baseheaders)
         soup = BeautifulSoup(resp.text,'html.parser')

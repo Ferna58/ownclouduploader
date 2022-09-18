@@ -7,11 +7,11 @@ class ProxyCloud(object):
     def set_default (self,socket):
         self.default = socket
     def as_dict_proxy(self):
-        if self.ip and self.port:
-            return {'http':f'{self.type}://'+self.ip+':'+str(self.port)+'',
+        return {'http':f'{self.type}://'+self.ip+':'+str(self.port)+'',
                 'https':f'{self.type}://'+self.ip+':'+str(self.port)+''}
-        else:return None
     def to_socks5(self):return f'socks5://{self.ip}:{self.port}'
+    def __str__(self):
+        return f"{self.ip}:{self.port}"
 
 import S5Crypto
 def parse(text):
@@ -26,6 +26,6 @@ def parse(text):
     return None
 
 
-#enc = S5Crypto.encrypt('152.206.85.87:9050')
+#enc = S5Crypto.encrypt('181.225.255.167:8080')
 #proxy= f'socks5://' + enc
 #print(proxy)
