@@ -12,8 +12,8 @@ OWN_USER = os.environ.get('account_user')
 OWN_PASSWORD = os.environ.get('account_password')
 
 # Proxy Config
-PROXY_IP:str = os.environ.get('proxy_ip')
-PROXY_PORT:int = int(os.environ.get('proxy_port'))
+PROXY_IP:str = None
+PROXY_PORT:int = None
 PROXY_OBJ = ProxyCloud.parse(os.environ.get('proxy_enc'))
 if PROXY_OBJ:
     PROXY_IP = PROXY_OBJ.ip
