@@ -12,9 +12,10 @@ OWN_USER = os.environ.get('account_user')
 OWN_PASSWORD = os.environ.get('account_password')
 
 # Proxy Config
-PROXY_IP:str = None
-PROXY_PORT:int = None
-PROXY_OBJ = ProxyCloud.parse(os.environ.get('proxy_enc'))
-if PROXY_OBJ:
-    PROXY_IP = PROXY_OBJ.ip
-    PROXY_PORT = PROXY_OBJ.port
+#PROXY_OBJ = ProxyCloud.parse(os.environ.get('proxy_enc'))
+PROXY_OBJ = ProxyCloud.parse('socks5://KHDEKJYEJJJKGIYDJHGFGEYHKKFJEGRIDHLIDILD')
+
+#SET In DEBUG
+#BOT_TOKEN = '5650727294:AAE4-x3fzPWLeIopQ9b4PWjOYza_U8shJRE'
+#OWN_USER = 'ljgaliano'
+#OWN_PASSWORD = 'Pelusa1234/**'

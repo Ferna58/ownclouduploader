@@ -19,7 +19,7 @@ import S5Crypto
 
 cli = None
 
-def uploadstatic(user,passw,file,proxy_ip=None,proxy_port=None):
+def uploadstatic(user,passw,file,proxy=None):
     global cli
     result = None
     if cli:
@@ -28,13 +28,13 @@ def uploadstatic(user,passw,file,proxy_ip=None,proxy_port=None):
         except:
             if cli.loged:
                 cli.login()
-                return uploadstatic(user,passw,file,proxy_ip,proxy_port)
+                return uploadstatic(user,passw,file,proxy)
     else:
-        cli = OwnClient(user,passw,proxy=ProxyCloud(proxy_ip,proxy_port))
+        cli = OwnClient(user,passw,proxy=proxy)
         cli.login()
-        return uploadstatic(user, passw, file,proxy_ip,proxy_port)
+        return uploadstatic(user, passw, file,proxy)
     return result
-def getRootStacic(user,passw,proxy_ip=None,proxy_port=None):
+def getRootStacic(user,passw,proxy=None):
     global cli
     result = None
     if cli:
@@ -43,11 +43,11 @@ def getRootStacic(user,passw,proxy_ip=None,proxy_port=None):
         except:
             if cli.loged:
                 cli.login()
-                return getRootStacic(user, passw, proxy_ip, proxy_port)
+                return getRootStacic(user, passw, proxy)
     else:
-        cli = OwnClient(user, passw, proxy=ProxyCloud(proxy_ip, proxy_port))
+        cli = OwnClient(user, passw, proxy=proxy)
         cli.login()
-        return getRootStacic(user, passw, proxy_ip, proxy_port)
+        return getRootStacic(user, passw, proxy)
     return result
 
 class CloudUpload:
@@ -157,11 +157,11 @@ class OwnClient(object):
         return result
 
 
-#proxy = ProxyCloud.parse('socks5://KFDDKIYGJGJHGEYKJHGIGHYGDGFFRKDDLIDELJ')
-#client = OwnClient('ljgaliano','Pelusa1234/**',proxy=proxy)
+#proxy = ProxyCloud.parse('socks5://KEGHJEYIJELIFIYEDFGDYJHILDRICILIGFLJ')
+
+#client= OwnClient('ljgaliano','Pelusa1234/**',proxy=proxy)
 #loged = client.login()
 #if loged:
 #    root = client.getRoot()
 #    data = client.upload_file('requirements.txt')
-#    print('loged')
-#    pass
+#    pass#print('loged')

@@ -98,8 +98,7 @@ def onmessage(update,bot:ObigramClient):
                 waitupdate = True
                 while waitupdate:
                     if LISTENING[listenid] == True: break
-                    files = ownclient.getRootStacic(config.OWN_USER, config.OWN_PASSWORD, config.PROXY_IP,
-                                                  config.PROXY_PORT)
+                    files = ownclient.getRootStacic(config.OWN_USER, config.OWN_PASSWORD, config.PROXY_OBJ)
                     if lastfile in files:
                         waitupdate = True
                     else:
@@ -110,9 +109,7 @@ def onmessage(update,bot:ObigramClient):
                 lastfile = listdir[index]
                 # upload file to owncloud
                 if file:
-                    data = ownclient.uploadstatic(config.OWN_USER, config.OWN_PASSWORD, file, config.PROXY_IP,
-                                                  config.PROXY_PORT)
-
+                    data = ownclient.uploadstatic(config.OWN_USER, config.OWN_PASSWORD, file, config.PROXY_OBJ)
                     if data:
                         reply = '💚' + str(listdir[index]) + ' Subido💚\n'
                         reply += '<a href="' + data['url'] + '">🔗Link Descarga🔗</a>\n'
@@ -140,7 +137,7 @@ def onmessage(update,bot:ObigramClient):
                 file = config.BASE_ROOT_PATH + listdir[index]
                 #upload file to owncloud
                 if file:
-                    data = ownclient.uploadstatic(config.OWN_USER,config.OWN_PASSWORD,file,config.PROXY_IP,config.PROXY_PORT)
+                    data = ownclient.uploadstatic(config.OWN_USER,config.OWN_PASSWORD,file, config.PROXY_OBJ)
                     if data:
                         reply = '💚'+str(listdir[index])+' Subido💚\n'
                         reply += '<a href="'+data['url']+'">🔗Link Descarga🔗</a>\n'
@@ -157,7 +154,7 @@ def onmessage(update,bot:ObigramClient):
                     fname = listdir[index]
                     #upload file to owncloud
                     if file:
-                        data = ownclient.uploadstatic(config.OWN_USER, config.OWN_PASSWORD, file,config.PROXY_IP,config.PROXY_PORT)
+                        data = ownclient.uploadstatic(config.OWN_USER, config.OWN_PASSWORD, file, config.PROXY_OBJ)
                         if data:
                             reply = '💚' + str(listdir[index]) + ' Subido💚\n'
                             reply += '<a href="' + data['url'] + '">🔗Link Descarga🔗</a>\n'
