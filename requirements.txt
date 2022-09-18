@@ -1,5 +1,5 @@
-requests
-requests[socks] 
+requests==2.12.0
+requests[socks]==2.12.0
 python-telegram-bot 
 bs4 
 user_agent 
