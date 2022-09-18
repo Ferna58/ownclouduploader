@@ -1,5 +1,5 @@
 class ProxyCloud(object):
-    def __init__(self, ip,port,type='socks5'):
+    def __init__(self, ip,port,type='socks5h'):
         self.ip = ip
         self.port = port
         self.default = None
