@@ -1,4 +1,4 @@
-from pyobigram.client import ObigramClient
+from pyobigram.client import ObigramClient,inlineKeyboardMarkup,inlineKeyboardButton
 from pyobigram.utils import get_file_size,sizeof_fmt,get_url_file_name,createID
 from pydownloader.downloader import Downloader
 
@@ -8,6 +8,7 @@ import zipfile
 import ownclient
 
 import os
+import time
 import config
 
 def send_root(update,bot,message):
@@ -65,6 +66,8 @@ def onmessage(update,bot:ObigramClient):
     if '/listenup' in text:
         listenid = createID(12)
         LISTENING[listenid] = False
+        listenmarkup = inlineKeyboardMarkup(
+            r1=[inlineKeyboardButton(text='💢Canelar Tarea💢',callback_data='/cancel '+listenid)])
         index = None
         range = None
         try:
@@ -73,13 +76,13 @@ def onmessage(update,bot:ObigramClient):
         except:
             pass
         if  range:
-            message = bot.sendMessage(update.message.chat.id, f'🧩Escuchando Cambios...')
+            message = bot.sendMessage(update.message.chat.id, f'🧩Escuchando Cambios...',reply_markup=listenmarkup)
             lastfile = ''
             listdir = os.listdir(config.BASE_ROOT_PATH)
             while index <= range and LISTENING[listenid] == False:
                 file = config.BASE_ROOT_PATH + listdir[index]
                 fname = listdir[index]
-                bot.editMessageText(message, f'🧩Listen Uploader For '+fname)
+                bot.editMessageText(message, f'🧩Listen Uploader For '+fname,reply_markup=listenmarkup)
                 #wait for file no in root
                 waitupdate = True
                 while waitupdate:
@@ -90,7 +93,9 @@ def onmessage(update,bot:ObigramClient):
                         waitupdate = True
                     else:
                         waitupdate = False
-                if LISTENING[listenid] == True:break
+                if LISTENING[listenid] == True:
+                    LISTENING.pop(listenid)
+                    break
                 lastfile = listdir[index]
                 # upload file to owncloud
                 if file:
@@ -184,10 +189,19 @@ def onmessage(update,bot:ObigramClient):
         pass
     print('Finished Procesed Message!')
 
+def cancellisten(update,bot:ObigramClient):
+    try:
+        cmd = str(update.data).split(' ')
+        listenid = cmd[0]
+        LISTENING[listenid] = True
+    except:pass
+    pass
+
 def main():
     print('Bot Started!')
     bot = ObigramClient(config.BOT_TOKEN)
     bot.onMessage(onmessage)
+    bot.onCallbackData('/cancel ',cancellisten)
     bot.run()
 
 if __name__ == '__main__':
