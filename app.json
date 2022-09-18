@@ -6,12 +6,6 @@
     "bot_token": {
       "description": "El token del bot"
     },
-    "proxy_ip": {
-      "description": "El IP Del Proxy"
-    },
-    "proxy_port": {
-      "description": "El Puerto Del Proxy"
-    },
     "proxy_enc": {
       "description": "Proxy Encriptado",
       "value": "NONE"
