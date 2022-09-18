@@ -35,6 +35,17 @@ def onmessage(update,bot:ObigramClient):
 
     message = None
 
+    if '/setenv' in text:
+        key = None
+        value = None
+        try:
+            key = str(text).split(' ')[1]
+            value = str(text).split(' ')[2]
+            os.environ[key] = value
+            bot.sendMessage(update.message.chat.id, '✅Variable De Entorno Seteada✅')
+        except Exception as ex:
+            pass
+
     if '/start' in text:
         reply = '<a href="https://github.com/ObisoftDev">👋 OwnCloudUploader 👋</a>\n\n'
         reply += 'Bot Para Descargar Archivos Desde Internet Directo A Tu OwnCloudUci'
