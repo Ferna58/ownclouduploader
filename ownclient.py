@@ -34,6 +34,21 @@ def uploadstatic(user,passw,file,proxy_ip=None,proxy_port=None):
         cli.login()
         return uploadstatic(user, passw, file,proxy_ip,proxy_port)
     return result
+def getRootStacic(user,passw,proxy_ip=None,proxy_port=None):
+    global cli
+    result = None
+    if cli:
+        try:
+            result = cli.getRoot()
+        except:
+            if cli.loged:
+                cli.login()
+                return getRootStacic(user, passw, proxy_ip, proxy_port)
+    else:
+        cli = OwnClient(user, passw, proxy=ProxyCloud(proxy_ip, proxy_port))
+        cli.login()
+        return getRootStacic(user, passw, proxy_ip, proxy_port)
+    return result
 
 class CloudUpload:
                 def __init__(self, func,filename,args):
@@ -125,7 +140,7 @@ class OwnClient(object):
         return retData
 
     def getRoot(self,path=''):
-        result = []
+        result = {}
         root = self.path + 'remote.php/webdav/' + path
         propf = open('propfind.txt','r')
         webdav_options = propf.read()
@@ -133,10 +148,12 @@ class OwnClient(object):
         req = requests.request('PROPFIND', root,proxies=self.proxy,auth=(self.user,self.password),data=webdav_options,headers={'Depth':'1',**self.baseheaders})
         xml_dict = xmltodict.parse(req.text, dict_constructor=dict)
         for response in xml_dict['d:multistatus']['d:response']:
-            filename = unquote(response['d:href']).replace('/owncloud/remote.php/webdav/', '')
-            fileurl = self.path + unquote(response['d:href']).replace('/owncloud/', '')
-            if filename:
-                result.append({'name':filename,'url':fileurl})
+            try:
+                filename = unquote(response['d:href']).replace('/owncloud/remote.php/webdav/', '')
+                fileurl = self.path + unquote(response['d:href']).replace('/owncloud/', '')
+                if filename:
+                    result[filename] = fileurl
+            except:pass
         return result
 
 

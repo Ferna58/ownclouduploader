@@ -1,5 +1,5 @@
 from pyobigram.client import ObigramClient
-from pyobigram.utils import get_file_size,sizeof_fmt,get_url_file_name
+from pyobigram.utils import get_file_size,sizeof_fmt,get_url_file_name,createID
 from pydownloader.downloader import Downloader
 
 import pyobigram
@@ -24,6 +24,8 @@ def send_root(update,bot,message):
         bot.editMessageText(message,reply)
     else:
         bot.sendMessage(update.message.chat.id, reply)
+
+LISTENING = {}
 
 def onmessage(update,bot:ObigramClient):
     text = update.message.text
@@ -59,6 +61,53 @@ def onmessage(update,bot:ObigramClient):
                     os.unlink(rmfile)
                     index += 1
         send_root(update,bot,message)
+
+    if '/listenup' in text:
+        listenid = createID(12)
+        LISTENING[listenid] = False
+        index = None
+        range = None
+        try:
+            index = int(str(text).split(' ')[1])
+            range = int(str(text).split(' ')[2])
+        except:
+            pass
+        if  range:
+            message = bot.sendMessage(update.message.chat.id, f'🧩Escuchando Cambios...')
+            lastfile = ''
+            listdir = os.listdir(config.BASE_ROOT_PATH)
+            while index <= range and LISTENING[listenid] == False:
+                file = config.BASE_ROOT_PATH + listdir[index]
+                fname = listdir[index]
+                bot.editMessageText(message, f'🧩Listen Uploader For '+fname)
+                #wait for file no in root
+                waitupdate = True
+                while waitupdate:
+                    if LISTENING[listenid] == True: break
+                    files = ownclient.getRootStacic(config.OWN_USER, config.OWN_PASSWORD, config.PROXY_IP,
+                                                  config.PROXY_PORT)
+                    if lastfile in files:
+                        waitupdate = True
+                    else:
+                        waitupdate = False
+                if LISTENING[listenid] == True:break
+                lastfile = listdir[index]
+                # upload file to owncloud
+                if file:
+                    data = ownclient.uploadstatic(config.OWN_USER, config.OWN_PASSWORD, file, config.PROXY_IP,
+                                                  config.PROXY_PORT)
+
+                    if data:
+                        reply = '💚' + str(listdir[index]) + ' Subido💚\n'
+                        reply += '<a href="' + data['url'] + '">🔗Link Descarga🔗</a>\n'
+                        reply += '🪆Cuenta🪆\n'
+                        reply += '🏮Usuario: ' + config.OWN_USER + '\n'
+                        reply += '🏮Contraseña: ' + config.OWN_PASSWORD + '\n'
+                        bot.sendMessage(message.chat.id, reply, parse_mode='html')
+                    else:
+                        bot.sendMessage(message.chat.id, '⭕Error No Se Subio⭕', parse_mode='html')
+                index += 1
+            bot.editMessageText(message, f'🧩Listen Uploader Finish ✅')
 
     if '/upload' in text:
         index = None
