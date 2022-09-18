@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pyobigram.client import ObigramClient,inlineKeyboardMarkup,inlineKeyboardButton
 from pyobigram.utils import get_file_size,sizeof_fmt,get_url_file_name,createID
 from pydownloader.downloader import Downloader
@@ -27,6 +29,61 @@ def send_root(update,bot,message):
         bot.sendMessage(update.message.chat.id, reply)
 
 LISTENING = {}
+
+
+def progress(dl, filename, currentBits, totalBits, speed, totaltime, args,compresed=False):
+    try:
+        bot = args[0]
+        message = args[1]
+
+        def text_progres(index, max):
+            try:
+                if max < 1:
+                    max += 1
+                porcent = index / max
+                porcent *= 100
+                porcent = round(porcent)
+                make_text = ''
+                index_make = 1
+                make_text += '\n'
+                while (index_make < 15):
+                    if porcent >= index_make * 5:
+                        make_text += '▰'
+                    else:
+                        make_text += '▱'
+                    index_make += 1
+                make_text += ''
+                return make_text
+            except Exception as ex:
+                return ''
+
+        def porcent(index, max):
+            porcent = index / max
+            porcent *= 100
+            porcent = round(porcent)
+            return porcent
+
+        if compresed:
+            msg = '🧰 Comprimiendo Archivo....\n'
+            msg += '📁 Archivo: ' + filename + ''
+            msg += text_progres(currentBits, totalBits) + ' ' + str(porcent(currentBits, totalBits)) + '%\n' + '\n'
+            msg += '☑ Total: ' + sizeof_fmt(totalBits) + '\n'
+            msg += '🌀 Procesado: ' + sizeof_fmt(currentBits) + '\n'
+            bot.editMessageText(message, msg)
+        else:
+            msg = '📡 Descargando Archivo....\n'
+            msg += '📁 Archivo: ' + filename + ''
+            msg += text_progres(currentBits, totalBits) + ' ' + str(porcent(currentBits, totalBits)) + '%\n' + '\n'
+            msg += '☑ Total: ' + sizeof_fmt(totalBits) + '\n'
+            msg += '📥 Descargado: ' + sizeof_fmt(currentBits) + '\n'
+            msg += '🚀 Velocidad: ' + sizeof_fmt(speed) + '/s\n'
+            msg += '⏱ Tiempo de Descarga: ' + str(time.strftime('%H:%M:%S', time.gmtime(totaltime))) + 's\n\n'
+            bot.editMessageText(message, msg)
+
+    except Exception as ex:
+        print(str(ex))
+
+def progresscompress(dl, file_name, current_bytes, total_bytes, args):progress(dl,file_name,current_bytes,total_bytes,0,0,args,compresed=True)
 
 def onmessage(update,bot:ObigramClient):
     text = update.message.text
@@ -180,7 +237,8 @@ def onmessage(update,bot:ObigramClient):
             ffullpath = config.BASE_ROOT_PATH + listdir[index]
             message = bot.sendMessage(update.message.chat.id,f'📚Comprimiendo {listdir[index]}...')
             zipname = str(ffullpath).split('.')[0]
-            multifile = zipfile.MultiFile(zipname, 1024 * 1024 * sizemb)
+            filezise = get_file_size(ffullpath)
+            multifile = zipfile.MultiFile(zipname, 1024 * 1024 * sizemb,filezise,progressfunc=progresscompress,args=(bot,message))
             zip = zipfile.ZipFile(multifile, mode='w', compression=zipfile.ZIP_DEFLATED)
             zip.write(ffullpath)
             zip.close()
@@ -188,12 +246,13 @@ def onmessage(update,bot:ObigramClient):
             send_root(update,bot,message)
 
     if 'http' in text:
+        message = bot.sendMessage(update.message.chat.id, '⏳Procesando...')
         down = Downloader(config.BASE_ROOT_PATH)
-        file = down.download_url(text)
+        file = down.download_url(text,progressfunc=progress,args=(bot,message))
         reply = '💚Archivo Descargado💚\n'
         reply += '📄Nombre: ' + file + '\n'
         reply += '🗳Tamaño: ' + str(sizeof_fmt(get_file_size(file))) + '\n'
-        message.reply_text(text=reply, subject=reply_subject_text)
+        bot.editMessageText(message,reply)
         pass
     print('Finished Procesed Message!')
 

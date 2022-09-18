@@ -2099,14 +2099,21 @@ files = []
 
 
 class MultiFile(object):
-    def __init__(self, file_name, max_file_size):
+    def __init__(self, file_name, max_file_size,total_file_size=0,progressfunc=None,args=None):
         self.current_position = 0
         self.file_name = file_name + '.7z'
         self.max_file_size = max_file_size
         self.current_file = None      
         self.files=[]
+        self.progressfunc = progressfunc
+        self.args = args
+        #progress
+        self.current_bytes = 0
+        self.total_bytes = int(total_file_size / max_file_size)
+        self.time_start = time.time()
+        self.time_total = 0
+        self.size_per_second = 0
         self.open_next_file()
-       
 
     def clear(self):
          files.clear()
@@ -2130,6 +2137,14 @@ class MultiFile(object):
                 self.current_file.close()
             self.current_file = open(file_name, 'wb')
             self.files.append(file_name)
+            tcurrent = time.time() - self.time_start
+            self.time_total += tcurrent
+            self.current_bytes = len(self.files)
+            self.time_start = time.time()
+            if self.time_total >= 1:
+                if self.progressfunc:
+                    self.progressfunc(self, self.file_name, self.current_bytes, self.total_bytes, self.args)
+                self.size_per_second = 0
 
     def tell(self):
             return self.current_position
@@ -2140,7 +2155,6 @@ class MultiFile(object):
             while start < end:
                 current_block_size = min(end - start, self.current_file_capacity)
                 self.current_file.write(data[start:start+current_block_size])
-                print ("* Wrote %d bytes." % current_block_size)
                 start += current_block_size
                 self.current_position += current_block_size
                 if self.current_file_capacity == self.max_file_size:
