@@ -21,12 +21,7 @@ def send_root(update,bot,message,cloud=False):
         listdir = ownclient.getRootStacic(config.OWN_USER, config.OWN_PASSWORD, config.PROXY_OBJ)
         for item in listdir:
                 i+=1
-                try:
-                    fname = item
-                    fsize = ownclient.getFileSizeStatic(config.OWN_USER, config.OWN_PASSWORD,listdir[item]+'?downloadStartSecret', config.PROXY_OBJ)
-                    prettyfsize = sizeof_fmt(fsize)
-                    reply += str(i) + ' - ' + fname + ' ' + prettyfsize + '\n'
-                except:pass
+                reply += str(i) + ' - ' + item + '\n'
         pass
     else:
         for item in listdir:
