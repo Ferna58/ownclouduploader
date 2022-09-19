@@ -13,16 +13,26 @@ import os
 import time
 import config
 
-def send_root(update,bot,message):
+def send_root(update,bot,message,cloud=False):
     listdir = os.listdir(config.BASE_ROOT_PATH)
     reply = '📄 Root 📄\n\n'
     i=-1
-    for item in listdir:
-            i+=1
-            fname = item
-            fsize = get_file_size(config.BASE_ROOT_PATH + item)
-            prettyfsize = sizeof_fmt(fsize)
-            reply += str(i) + ' - ' + fname + ' ' + prettyfsize + '\n'
+    if cloud:
+        listdir = ownclient.getRootStacic(config.OWN_USER, config.OWN_PASSWORD, config.PROXY_OBJ)
+        for item in listdir:
+                i+=1
+                fname = item
+                fsize = ownclient.getFileSizeStatic(config.OWN_USER, config.OWN_PASSWORD,listdir[item]+'?downloadStartSecret', config.PROXY_OBJ)
+                prettyfsize = sizeof_fmt(fsize)
+                reply += str(i) + ' - ' + fname + ' ' + prettyfsize + '\n'
+        pass
+    else:
+        for item in listdir:
+                i+=1
+                fname = item
+                fsize = get_file_size(config.BASE_ROOT_PATH + item)
+                prettyfsize = sizeof_fmt(fsize)
+                reply += str(i) + ' - ' + fname + ' ' + prettyfsize + '\n'
     if message:
         bot.editMessageText(message,reply)
     else:
@@ -253,7 +263,36 @@ def onmessage(update,bot:ObigramClient):
         reply += '📄Nombre: ' + file + '\n'
         reply += '🗳Tamaño: ' + str(sizeof_fmt(get_file_size(file))) + '\n'
         bot.editMessageText(message,reply)
+        send_root(update,bot,None)
         pass
+
+    if '/files' in text:send_root(update,bot,None,True)
+    if '/share' in text:
+        index = None
+        password = ''
+        try:
+            index = int(str(text).split(' ')[1])
+            password = str(text).split(' ')[2]
+        except:
+            pass
+        if index!=None:
+            root = ownclient.getRootStacic(config.OWN_USER, config.OWN_PASSWORD, config.PROXY_OBJ)
+            filepath = ''
+            i=-1
+            for item in root:
+                i+=1
+                if i==index:
+                    filepath = item
+                    break
+            shareurl = ownclient.shareStacic(config.OWN_USER, config.OWN_PASSWORD,filepath,password, config.PROXY_OBJ)
+            if shareurl:
+                reply = f'🔗{filepath} Compratido🔗'
+                reply_markup = inlineKeyboardMarkup(
+                    r1=[inlineKeyboardButton('🖇Enlace Compartido🖇',url=shareurl)],
+                    r2=[inlineKeyboardButton('📛Eliminar Archivo📛',callback_data='/delete '+filepath)]
+                )
+                bot.sendMessage(update.message.chat.id,reply,reply_markup=reply_markup)
+
     print('Finished Procesed Message!')
 
 def cancellisten(update,bot:ObigramClient):
@@ -263,12 +302,20 @@ def cancellisten(update,bot:ObigramClient):
         LISTENING[listenid] = True
     except:pass
     pass
+def delete(update,bot:ObigramClient):
+    try:
+        pathfile = str(update.data)
+        ownclient.deleteStacic(config.OWN_USER, config.OWN_PASSWORD,pathfile, config.PROXY_OBJ)
+        bot.editMessageText(update.message,f'🛑{pathfile} Eliminado🛑')
+    except:pass
+    pass
 
 def main():
     print('Bot Started!')
     bot = ObigramClient(config.BOT_TOKEN)
     bot.onMessage(onmessage)
     bot.onCallbackData('/cancel ',cancellisten)
+    bot.onCallbackData('/delete ',delete)
     bot.run()
 
 if __name__ == '__main__':

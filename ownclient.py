@@ -14,8 +14,10 @@ from ProxyCloud import ProxyCloud
 import socket
 import socks
 import xmltodict
-
+import json
 import S5Crypto
+
+from pydownloader.utils import req_file_size
 
 cli = None
 
@@ -40,6 +42,53 @@ def getRootStacic(user,passw,proxy=None):
     if cli:
         try:
             result = cli.getRoot()
+        except:
+            if cli.loged:
+                cli.login()
+                return getRootStacic(user, passw, proxy)
+    else:
+        cli = OwnClient(user, passw, proxy=proxy)
+        cli.login()
+        return getRootStacic(user, passw, proxy)
+    return result
+def shareStacic(user,passw,filepath,sharepassw='',proxy=None):
+    global cli
+    result = None
+    if cli:
+        try:
+            result = cli.share(filepath,sharepassw)
+        except:
+            if cli.loged:
+                cli.login()
+                return shareStacic(user,passw,filepath,sharepassw,proxy)
+    else:
+        cli = OwnClient(user, passw, proxy=proxy)
+        cli.login()
+        return shareStacic(user,passw,filepath,sharepassw,proxy)
+    return result
+def deleteStacic(user,passw,filepath,proxy=None):
+    global cli
+    result = None
+    if cli:
+        try:
+            cli.delete(filepath)
+        except:
+            if cli.loged:
+                cli.login()
+                return deleteStacic(user, passw,filepath, proxy)
+    else:
+        cli = OwnClient(user, passw, proxy=proxy)
+        cli.login()
+        return deleteStacic(user, passw,filepath, proxy)
+    return result
+def getFileSizeStatic(user,passw,fileurl,proxy=None):
+    global cli
+    result = 0
+    if cli:
+        try:
+            resp = cli.session.get(fileurl,stream=True,allow_redirects=True,headers=cli.baseheaders)
+            if resp.status_code==200:
+                result = req_file_size(resp)
         except:
             if cli.loged:
                 cli.login()
@@ -157,12 +206,45 @@ class OwnClient(object):
             except:pass
         return result
 
+    def share(self,pathfile='',password=''):
+        files = self.path + 'index.php/apps/files/'
+        resp = self.session.get(files, headers=self.baseheaders, proxies=self.proxy)
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        requesttoken = soup.find('head')['data-requesttoken']
+        shareurl = None
+        shareurl = f'{self.path}ocs/v2.php/apps/files_sharing/api/v1/shares?format=json'
+        passwordchanged = 'false'
+        if password!='':
+            passwordchanged = 'true'
+        payload = {
+            "password": password,
+            "passwordChanged": passwordchanged,
+            "permissions": "19",
+            "expireDate": "",
+            "shareType": "3",
+            "path": f"/{pathfile}"
+        }
+        resp = self.session.post(shareurl,data=payload,proxies=self.proxy,headers={'requesttoken':requesttoken,'OCS-APIREQUEST':'true',**self.baseheaders})
+        try:
+            jsondata = json.loads(resp.text)
+            shareurl = jsondata['ocs']['data']['url'] + '/download'
+        except:pass
+        return shareurl
+
+    def delete(self,pathfile):
+        deleteurl = f'{self.path}remote.php/webdav/{pathfile}'
+        req = requests.request('DELETE', deleteurl,proxies=self.proxy,auth=(self.user,self.password),headers={**self.baseheaders})
+        return
+
 
 #proxy = ProxyCloud.parse('socks5://KEGHJEYIJELIFIYEDFGDYJHILDRICILIGFLJ')
 
-#client= OwnClient('ljgaliano','Pelusa1234/**',proxy=proxy)
+#client= OwnClient('ealfonso','Danele.2329')
 #loged = client.login()
 #if loged:
-#    root = client.getRoot()
-#    data = client.upload_file('requirements.txt')
+    #data = client.upload_file('requirements.txt')
+    #client.delete('requirements.txt')
+    #shareurl = client.share('requirements.txt')
+    #print(shareurl)
+    #root = client.getRoot()
 #    pass#print('loged')
