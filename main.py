@@ -178,7 +178,7 @@ def onmessage(update,bot:ObigramClient):
                 if file:
                     data = ownclient.uploadstatic(config.OWN_USER, config.OWN_PASSWORD, file, config.PROXY_OBJ)
                     if data:
-                        shareurl = ownclient.shareStacic(config.OWN_USER, config.OWN_PASSWORD, listdir[index],config.PROXY_OBJ)
+                        shareurl = ownclient.shareStacic(config.OWN_USER, config.OWN_PASSWORD, listdir[index],'',config.PROXY_OBJ)
                         reply = '💚' + str(listdir[index]) + ' Subido💚\n'
                         reply_markup = inlineKeyboardMarkup(
                             r1=[inlineKeyboardButton('🖇Enlace Directo🖇', url=shareurl)],
