@@ -21,7 +21,10 @@ def send_root(update,bot,message,cloud=False):
         listdir = ownclient.getRootStacic(config.OWN_USER, config.OWN_PASSWORD, config.PROXY_OBJ)
         for item in listdir:
                 i+=1
-                reply += str(i) + ' - ' + item + '\n'
+                fname = item
+                fsize = ownclient.getFileSizeStatic(config.OWN_USER, config.OWN_PASSWORD,listdir[item]+'?downloadStartSecret', config.PROXY_OBJ)
+                prettyfsize = sizeof_fmt(fsize)
+                reply += str(i) + ' - ' + fname + ' ' + prettyfsize + '\n'
         pass
     else:
         for item in listdir:
@@ -175,12 +178,14 @@ def onmessage(update,bot:ObigramClient):
                 if file:
                     data = ownclient.uploadstatic(config.OWN_USER, config.OWN_PASSWORD, file, config.PROXY_OBJ)
                     if data:
+                        shareurl = ownclient.shareStacic(config.OWN_USER, config.OWN_PASSWORD, listdir[index],config.PROXY_OBJ)
                         reply = '💚' + str(listdir[index]) + ' Subido💚\n'
-                        reply += '<a href="' + data['url'] + '">🔗Link Descarga🔗</a>\n'
-                        reply += '🪆Cuenta🪆\n'
-                        reply += '🏮Usuario: ' + config.OWN_USER + '\n'
-                        reply += '🏮Contraseña: ' + config.OWN_PASSWORD + '\n'
-                        bot.sendMessage(message.chat.id, reply, parse_mode='html')
+                        reply_markup = inlineKeyboardMarkup(
+                            r1=[inlineKeyboardButton('🖇Enlace Directo🖇', url=shareurl)],
+                            r2=[inlineKeyboardButton('📛Eliminar Archivo📛',
+                                                     callback_data='/delete ' + listdir[index])]
+                        )
+                        bot.sendMessage(message.chat.id, reply, reply_markup=reply_markup)
                     else:
                         bot.sendMessage(message.chat.id, '⭕Error No Se Subio⭕', parse_mode='html')
                 index += 1
@@ -203,12 +208,15 @@ def onmessage(update,bot:ObigramClient):
                 if file:
                     data = ownclient.uploadstatic(config.OWN_USER,config.OWN_PASSWORD,file, config.PROXY_OBJ)
                     if data:
-                        reply = '💚'+str(listdir[index])+' Subido💚\n'
-                        reply += '<a href="'+data['url']+'">🔗Link Descarga🔗</a>\n'
-                        reply += '🪆Cuenta🪆\n'
-                        reply += '🏮Usuario: '+config.OWN_USER+'\n'
-                        reply += '🏮Contraseña: '+config.OWN_PASSWORD+'\n'
-                        bot.editMessageText(message,reply, parse_mode='html')
+                        shareurl = ownclient.shareStacic(config.OWN_USER, config.OWN_PASSWORD, listdir[index],
+                                                         config.PROXY_OBJ)
+                        reply = '💚' + str(listdir[index]) + ' Subido💚\n'
+                        reply_markup = inlineKeyboardMarkup(
+                            r1=[inlineKeyboardButton('🖇Enlace Directo🖇', url=shareurl)],
+                            r2=[inlineKeyboardButton('📛Eliminar Archivo📛',
+                                                     callback_data='/delete ' + listdir[index])]
+                        )
+                        bot.editMessageText(message,reply, reply_markup=reply_markup)
                     else:
                         bot.editMessageText(message, '⭕Error No Se Subio⭕', parse_mode='html')
             else:
@@ -220,12 +228,14 @@ def onmessage(update,bot:ObigramClient):
                     if file:
                         data = ownclient.uploadstatic(config.OWN_USER, config.OWN_PASSWORD, file, config.PROXY_OBJ)
                         if data:
+                            shareurl = ownclient.shareStacic(config.OWN_USER, config.OWN_PASSWORD, listdir[index],config.PROXY_OBJ)
                             reply = '💚' + str(listdir[index]) + ' Subido💚\n'
-                            reply += '<a href="' + data['url'] + '">🔗Link Descarga🔗</a>\n'
-                            reply += '🪆Cuenta🪆\n'
-                            reply += '🏮Usuario: ' + config.OWN_USER + '\n'
-                            reply += '🏮Contraseña: ' + config.OWN_PASSWORD + '\n'
-                            bot.sendMessage(message.chat.id, reply,parse_mode='html')
+                            reply_markup = inlineKeyboardMarkup(
+                                r1=[inlineKeyboardButton('🖇Enlace Directo🖇', url=shareurl)],
+                                r2=[inlineKeyboardButton('📛Eliminar Archivo📛',
+                                                         callback_data='/delete ' + listdir[index])]
+                            )
+                            bot.sendMessage(update.message.chat.id, reply, reply_markup=reply_markup)
                         else:
                             bot.sendMessage(message.chat.id, '⭕Error No Se Subio⭕', parse_mode='html')
                     index += 1
@@ -285,7 +295,7 @@ def onmessage(update,bot:ObigramClient):
             if shareurl:
                 reply = f'🔗{filepath} Compratido🔗'
                 reply_markup = inlineKeyboardMarkup(
-                    r1=[inlineKeyboardButton('🖇Enlace Compartido🖇',url=shareurl)],
+                    r1=[inlineKeyboardButton('🖇Enlace Directo🖇',url=shareurl)],
                     r2=[inlineKeyboardButton('📛Eliminar Archivo📛',callback_data='/delete '+filepath)]
                 )
                 bot.sendMessage(update.message.chat.id,reply,reply_markup=reply_markup)
