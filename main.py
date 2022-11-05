@@ -138,7 +138,7 @@ def onmessage(update,bot:ObigramClient):
                     index += 1
         send_root(update,bot,message)
 
-    if '/listenup' in text:
+    if '/lup' in text:
         listenid = createID(12)
         LISTENING[listenid] = False
         listenmarkup = inlineKeyboardMarkup(
@@ -188,7 +188,7 @@ def onmessage(update,bot:ObigramClient):
                 index += 1
             bot.editMessageText(message, f'🧩Listen Uploader Finish ✅')
 
-    if '/upload' in text:
+    if '/up' in text:
         index = None
         range = None
         try:
