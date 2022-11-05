@@ -199,7 +199,7 @@ class OwnClient(object):
         xml_dict = xmltodict.parse(req.text, dict_constructor=dict)
         for response in xml_dict['d:multistatus']['d:response']:
             try:
-                filename = unquote(response['d:href']).replace('/owncloud/remote.php/webdav/', '')
+                filename = unquote(response['d:href']).replace('/owncloud/remote.php/webdav/', '').replace('/remote.php/webdav/', '')
                 fileurl = self.path + unquote(response['d:href']).replace('/owncloud/', '')
                 if filename:
                     result[filename] = fileurl
