@@ -17,6 +17,10 @@
     "account_password": {
       "description": "El Password De La Owncloud",
       "value": "mipassword"
+    },
+    "host": {
+      "description": "El Host De La Nube",
+      "value": "https://misarchivos.uci.cu/owncloud/"
     }
   }
 }
