@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import uuid
 from ProxyCloud import ProxyCloud
 
+import config
 import socket
 import socks
 import xmltodict
@@ -126,7 +127,7 @@ class OwnClient(object):
         self.user = user
         self.password = password
         self.session = requests.Session()
-        self.path = path
+        self.path = config.OWN_HOST
         self.tokenize_host = 'https://tguploader.url/'
         self.proxy = None
         self.loged = False
