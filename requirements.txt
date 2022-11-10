@@ -1,8 +1,7 @@
 requests
 requests[socks]
 bs4 
-user_agent 
-youtube_dl 
+user_agent  
 requests_toolbelt 
 tenacity
 xmltodict
